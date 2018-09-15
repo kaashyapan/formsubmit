@@ -1,0 +1,48 @@
+service: formSubmit
+provider:
+  name: aws
+  runtime: dotnetcore2.1
+  stage: dev
+  region: us-east-1
+  deploymentBucket:
+    name: sls-lambda-deploys-dev 
+  apiKeys:
+    - ${self:service}-${opt:stage, self:provider.stage}-key
+  usagePlan: 
+    quota:
+      limit: 1000
+      offset: 2
+      period: MONTH
+    throttle:
+      burstLimit: 100
+      rateLimit: 100
+  tags: 
+    owner: sunder
+    name: formSubmit
+   
+# you can add statements to the Lambda function's IAM Role here
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "sns:Publish"
+      Resource: [ "*" ]
+    - Effect: "Allow"
+      Action:
+        - "ses:SendEmail"
+      Resource: [ "*" ]
+
+package:
+  artifact: bin/release/netcoreapp2.1/deploy-package.zip
+
+functions:
+  acceptMesg:
+    handler: FsharpHandlers::FormSubmit.Handler::accept
+    description: Accept form submission
+    memorySize: 512
+
+    events:
+      - http:
+          path: message
+          method: post
+          cors: true
+          private: true
