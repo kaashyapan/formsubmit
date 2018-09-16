@@ -12,6 +12,6 @@ Body with form fields as application/json. No nested records or lists
 { "name" : "xxxxx",
   "age" : 30,
   "email" : "xxx@xxx.com",
-  "message" : "Hi there.",
+  "message" : "Hi there."
 }
 ```
