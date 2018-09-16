@@ -2,7 +2,7 @@ service: formSubmit
 provider:
   name: aws
   runtime: dotnetcore2.1
-  stage: dev
+  stage: production
   region: us-east-1
   deploymentBucket:
     name: sls-lambda-deploys-dev 
@@ -44,5 +44,10 @@ functions:
       - http:
           path: message
           method: post
-          cors: true
+          cors: 
           private: true
+          request:
+            parameters:
+              querystrings:
+                email: true
+                phone: false

@@ -5,14 +5,14 @@
       "name": "formSubmit"
     },
     "provider": {
-      "stage": "dev",
+      "stage": "production",
       "region": "us-east-1",
       "variableSyntax": "\\${([ ~:a-zA-Z0-9._'\",\\-\\/\\(\\)]+?)}",
       "name": "aws",
       "runtime": "dotnetcore2.1",
       "deploymentBucket": "sls-lambda-deploys-dev",
       "apiKeys": [
-        "formSubmit-dev-key"
+        "formSubmit-production-key"
       ],
       "usagePlan": {
         "quota": {
@@ -61,7 +61,7 @@
           "AcceptMesgLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/formSubmit-dev-acceptMesg"
+              "LogGroupName": "/aws/lambda/formSubmit-production-acceptMesg"
             }
           },
           "IamRoleLambdaExecution": {
@@ -89,7 +89,7 @@
                     "Fn::Join": [
                       "-",
                       [
-                        "dev",
+                        "production",
                         "formSubmit",
                         "lambda"
                       ]
@@ -105,7 +105,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/formSubmit-dev-acceptMesg:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/formSubmit-production-acceptMesg:*"
                           }
                         ]
                       },
@@ -116,7 +116,7 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/formSubmit-dev-acceptMesg:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/formSubmit-production-acceptMesg:*:*"
                           }
                         ]
                       },
@@ -136,7 +136,7 @@
                   "-",
                   [
                     "formSubmit",
-                    "dev",
+                    "production",
                     "us-east-1",
                     "lambdaRole"
                   ]
@@ -149,9 +149,9 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "sls-lambda-deploys-dev",
-                "S3Key": "serverless/formSubmit/dev/1536992042067-2018-09-15T06:14:02.067Z/deploy-package.zip"
+                "S3Key": "serverless/formSubmit/production/1537077371653-2018-09-16T05:56:11.653Z/deploy-package.zip"
               },
-              "FunctionName": "formSubmit-dev-acceptMesg",
+              "FunctionName": "formSubmit-production-acceptMesg",
               "Handler": "FsharpHandlers::FormSubmit.Handler::accept",
               "MemorySize": 512,
               "Role": {
@@ -179,21 +179,21 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "AcceptMesgLambdaVersionhyPYJeeQUv9mkEk2Ex0olUn9Z8Poqte3sNhBW9qU": {
+          "AcceptMesgLambdaVersion3Rg8qupbNRXlssymB7VZo6W7PTFbso8n03cI0ccfAU": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "AcceptMesgLambdaFunction"
               },
-              "CodeSha256": "Rsdi4miQ/367eKel2E9ovc0hn894Q7Kp3qzyGWjIAdY=",
+              "CodeSha256": "GBWh0KwxD0iPby9qFUCD7qSFBWqMt44E4uLn3oUBkz0=",
               "Description": "Accept form submission"
             }
           },
           "ApiGatewayRestApi": {
             "Type": "AWS::ApiGateway::RestApi",
             "Properties": {
-              "Name": "dev-formSubmit",
+              "Name": "production-formSubmit",
               "EndpointConfiguration": {
                 "Types": [
                   "EDGE"
@@ -216,58 +216,14 @@
               }
             }
           },
-          "ApiGatewayMethodMessageOptions": {
-            "Type": "AWS::ApiGateway::Method",
-            "Properties": {
-              "AuthorizationType": "NONE",
-              "HttpMethod": "OPTIONS",
-              "MethodResponses": [
-                {
-                  "StatusCode": "200",
-                  "ResponseParameters": {
-                    "method.response.header.Access-Control-Allow-Origin": true,
-                    "method.response.header.Access-Control-Allow-Headers": true,
-                    "method.response.header.Access-Control-Allow-Methods": true,
-                    "method.response.header.Access-Control-Allow-Credentials": true
-                  },
-                  "ResponseModels": {}
-                }
-              ],
-              "RequestParameters": {},
-              "Integration": {
-                "Type": "MOCK",
-                "RequestTemplates": {
-                  "application/json": "{statusCode:200}"
-                },
-                "ContentHandling": "CONVERT_TO_TEXT",
-                "IntegrationResponses": [
-                  {
-                    "StatusCode": "200",
-                    "ResponseParameters": {
-                      "method.response.header.Access-Control-Allow-Origin": "'*'",
-                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'",
-                      "method.response.header.Access-Control-Allow-Credentials": "'false'"
-                    },
-                    "ResponseTemplates": {
-                      "application/json": ""
-                    }
-                  }
-                ]
-              },
-              "ResourceId": {
-                "Ref": "ApiGatewayResourceMessage"
-              },
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              }
-            }
-          },
           "ApiGatewayMethodMessagePost": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
               "HttpMethod": "POST",
-              "RequestParameters": {},
+              "RequestParameters": {
+                "method.request.querystring.email": true,
+                "method.request.querystring.phone": false
+              },
               "ResourceId": {
                 "Ref": "ApiGatewayResourceMessage"
               },
@@ -306,13 +262,13 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1536992042131": {
+          "ApiGatewayDeployment1537077371703": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               },
-              "StageName": "dev"
+              "StageName": "production"
             },
             "DependsOn": [
               "ApiGatewayMethodMessagePost"
@@ -322,32 +278,32 @@
             "Type": "AWS::ApiGateway::ApiKey",
             "Properties": {
               "Enabled": true,
-              "Name": "formSubmit-dev-key",
+              "Name": "formSubmit-production-key",
               "StageKeys": [
                 {
                   "RestApiId": {
                     "Ref": "ApiGatewayRestApi"
                   },
-                  "StageName": "dev"
+                  "StageName": "production"
                 }
               ]
             },
-            "DependsOn": "ApiGatewayDeployment1536992042131"
+            "DependsOn": "ApiGatewayDeployment1537077371703"
           },
           "ApiGatewayUsagePlan": {
             "Type": "AWS::ApiGateway::UsagePlan",
-            "DependsOn": "ApiGatewayDeployment1536992042131",
+            "DependsOn": "ApiGatewayDeployment1537077371703",
             "Properties": {
               "ApiStages": [
                 {
                   "ApiId": {
                     "Ref": "ApiGatewayRestApi"
                   },
-                  "Stage": "dev"
+                  "Stage": "production"
                 }
               ],
-              "Description": "Usage plan for formSubmit dev stage",
-              "UsagePlanName": "formSubmit-dev",
+              "Description": "Usage plan for formSubmit production stage",
+              "UsagePlanName": "formSubmit-production",
               "Quota": {
                 "Limit": 1000,
                 "Offset": 2,
@@ -426,7 +382,7 @@
           "AcceptMesgLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "AcceptMesgLambdaVersionhyPYJeeQUv9mkEk2Ex0olUn9Z8Poqte3sNhBW9qU"
+              "Ref": "AcceptMesgLambdaVersion3Rg8qupbNRXlssymB7VZo6W7PTFbso8n03cI0ccfAU"
             }
           },
           "ServiceEndpoint": {
@@ -443,7 +399,7 @@
                   {
                     "Ref": "AWS::URLSuffix"
                   },
-                  "/dev"
+                  "/production"
                 ]
               ]
             }
@@ -463,31 +419,19 @@
             "http": {
               "path": "message",
               "method": "post",
-              "cors": {
-                "origins": [
-                  "*"
-                ],
-                "origin": "*",
-                "methods": [
-                  "OPTIONS",
-                  "POST"
-                ],
-                "headers": [
-                  "Content-Type",
-                  "X-Amz-Date",
-                  "Authorization",
-                  "X-Api-Key",
-                  "X-Amz-Security-Token",
-                  "X-Amz-User-Agent"
-                ],
-                "allowCredentials": false
-              },
+              "cors": null,
               "private": true,
+              "request": {
+                "parameters": {
+                  "method.request.querystring.email": true,
+                  "method.request.querystring.phone": false
+                }
+              },
               "integration": "AWS_PROXY"
             }
           }
         ],
-        "name": "formSubmit-dev-acceptMesg",
+        "name": "formSubmit-production-acceptMesg",
         "package": {},
         "memory": 512,
         "timeout": 6,
@@ -497,7 +441,7 @@
     }
   },
   "package": {
-    "artifactDirectoryName": "serverless/formSubmit/dev/1536992042067-2018-09-15T06:14:02.067Z",
+    "artifactDirectoryName": "serverless/formSubmit/production/1537077371653-2018-09-16T05:56:11.653Z",
     "artifact": "deploy-package.zip"
   }
 }

@@ -59,21 +59,40 @@ module SNS =
 module SES = 
     let createHtmlMsg(msg:string): string =
         let prefix = """
-        <!DOCTYPE html>
-        <html lang="en">
-            <head>
-                <meta charset="utf-8">
-                <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css">
-            </head>
-            <body>
-        """
+        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
+          <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+          <meta name="viewport" content="width=device-width"/>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation-emails/2.2.1/foundation-emails.min.css">
+          <style>
+          </style>
+        </head>
+
+        <body>
+          <table class="body" data-made-with-foundation>
+            <tr>
+              <td class="float-center" align="center" valign="top">
+                <center>
+                   <table class="container">
+                     <tr>
+                       <td>
+                         <table class="row">
+            """
 
         let postfix = """
-        </body>
-        </html>
-        """
+                               </tr>
+                             </table>
+                           </td> 
+                         </tr>
+                       </table>
+                    </center>
+                  </td>
+                </tr>
+              </table>
+            </body>
+          </html>
+            """
         prefix + msg + postfix
 
 
@@ -89,9 +108,23 @@ module SES =
         let jsonBody =  JsonValue.Parse(body)
         let props = jsonBody.Properties
         let mutable proplist = List.empty
+        let html1 = """
+        <tr>
+        <td class="small-12 large-6 first columns">
+           <strong>
+            """
+        let html2 = """
+                 </strong>
+               </td>
+               <td>
+              """
+        let html3 = """
+            </td>
+            </tr>
+        """
         for (key, val1) in props do
             let tup = processItems(val1)
-            let item = "<strong>" + key + " - " + "</strong>" + tup + "<br/>"
+            let item = html1 + key + html2 + tup + html3
             proplist <- List.append proplist [item]
 
         proplist |> System.String.Concat |> createHtmlMsg
@@ -99,10 +132,6 @@ module SES =
     let sendEmail(req: APIGatewayProxyRequest, resp: APIGatewayProxyResponse )  =
         let request =  req
         let response =  resp
-        printfn "req %A" req
-        printfn "request %A" request
-        printfn "request %A" request
-        printfn "Query strings were %A" request.QueryStringParameters
 
         match request.QueryStringParameters.TryGetValue("email") with
         | (true, email) ->
@@ -129,7 +158,7 @@ module SES =
             let emailRqst = Amazon.SimpleEmail.Model.SendEmailRequest()
             emailRqst.Destination <- dest
             emailRqst.Message <- msg
-            emailRqst.Source <- "sunder.narayanaswamy@gmail.com"
+            emailRqst.Source <- "info@heartteamindia.com"
 
             let sendAsync rqst = 
                 async {
@@ -156,8 +185,9 @@ module SES =
 
 module Handler = 
     let accept(request:APIGatewayProxyRequest, context:ILambdaContext): APIGatewayProxyResponse = 
-        printfn "Query strings were %A" request.QueryStringParameters
         printfn "Body was %A" request.Body
+        printfn "Context was %A" request.RequestContext
+        printfn "Query strings were %A" request.QueryStringParameters
 
         let response = APIGatewayProxyResponse()
         let headers = new Dictionary<string, string>()
